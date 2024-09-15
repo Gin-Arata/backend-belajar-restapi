@@ -69,3 +69,33 @@ export const PATCH = async (req: Request) => {
     });
   }
 };
+
+export const DELETE = async (req: Request) => {
+  try {
+    const body = await req.json();
+    const { userId } = body;
+
+    await connect();
+
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      return new NextResponse("Invalid user ID", { status: 400 });
+    }
+
+    const deletedUser = await User.findByIdAndDelete({ _id: userId });
+
+    if (!deletedUser) {
+      return new NextResponse("User not found", { status: 400 });
+    } else {
+      return new NextResponse(
+        JSON.stringify({
+          status: 200,
+          message: "User has been deleted successfully",
+        })
+      );
+    }
+  } catch (err: any) {
+    return new NextResponse("Error deleting user " + err.message, {
+      status: 500,
+    });
+  }
+};
